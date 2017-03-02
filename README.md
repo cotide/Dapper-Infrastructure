@@ -1,17 +1,18 @@
 # Dapper-Infrastructure
 > Dapper 扩展库 - (Dapper Extensions Library) 
 
-## 优点
+
+## 文件结构说明
+
+* /Code/... 程序文件
+* /DB/Init_DB.sql MYSQL初始化脚本
+
+
+## 特定
 
 * 集成PetaPoco的SQL Linq语法糖.
 * 支持多表关联分页查询.
 * CRUD 封装/简化调用方式.
-
-
-## 文件结构说明
-- /Code/... 程序文件
-- /DB/Init_DB.sql MYSQL初始化脚本
-
 
 
 ## 事例

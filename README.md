@@ -77,7 +77,7 @@ using (var db = NewDB)
 
 ```
 
-``` code 
+``` c# 
 
 int pageIndex = 1;
 int pageSize = 10;

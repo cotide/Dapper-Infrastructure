@@ -109,3 +109,8 @@ using (var db = NewDB)
 }
 
 ```
+
+
+## 参考资料
+* [Dapper](https://github.com/StackExchange/Dapper)
+* [PetaPoco](https://github.com/CollaboratingPlatypus/PetaPoco)

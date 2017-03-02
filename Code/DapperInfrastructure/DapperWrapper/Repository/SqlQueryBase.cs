@@ -99,7 +99,7 @@ namespace DapperInfrastructure.DapperWrapper.Repository
         /// <returns></returns>
         public PageList<TDto> PageList<TDto>(int pageIndex, int pageSize, Sql sql)
         {
-            var pageData = Page<TDto>(pageIndex, pageSize, sql.SQL, sql.Arguments);
+            var pageData = Page<TDto>(pageIndex, pageSize, sql.SQL, sql.CountField, sql.Arguments);
             var result = pageData.GetPage<TDto>(pageIndex, pageSize);
             return result;
         }
@@ -108,7 +108,12 @@ namespace DapperInfrastructure.DapperWrapper.Repository
 
         #region Helper
 
-        protected Page<Dto> Page<Dto>(int pageIndex, int itemsPerPage, string sql, params object[] param)
+        protected Page<Dto> Page<Dto>(
+            int pageIndex, 
+            int itemsPerPage, 
+            string sql,
+            string sqlCountField,
+            params object[] param)
         {
             UnitOfWork.GetOpenConnection();
             //UnitOfWork.DbConnection..GetPage<TEntity>()
@@ -116,7 +121,15 @@ namespace DapperInfrastructure.DapperWrapper.Repository
 
             string sqlCount, sqlPage;
             object[] sqlCountArgs;
-            BuildPageQueries<Dto>((pageIndex - 1) * itemsPerPage, itemsPerPage, sql, ref param, out sqlCount,out sqlCountArgs, out sqlPage);
+            BuildPageQueries<Dto>(
+                (pageIndex - 1) * itemsPerPage, 
+                itemsPerPage,
+                sql,
+                sqlCountField,
+                ref param, 
+                out sqlCount,
+                out sqlCountArgs,
+                out sqlPage);
 
             // Save the one-time command time out and use it for both queries
             int saveTimeout = OneTimeCommandTimeout;
@@ -140,21 +153,13 @@ namespace DapperInfrastructure.DapperWrapper.Repository
         }
 
 
-        /// <summary>
-        /// 生成SQL语句
-        /// </summary>
-        /// <typeparam name="T">返回泛型结果</typeparam>
-        /// <param name="skip"></param>
-        /// <param name="take"></param>
-        /// <param name="sql"></param>
-        /// <param name="args"></param>
-        /// <param name="sqlCount"></param>
-        /// <param name="sqlCountArgs"></param>
-        /// <param name="sqlPage"></param>
+
+     
         private void BuildPageQueries<T>(
             long skip,
             long take,
             string sql,
+            string sqlCountField,
             ref object[] args,
             out string sqlCount,
             out object[] sqlCountArgs,
@@ -165,7 +170,12 @@ namespace DapperInfrastructure.DapperWrapper.Repository
 
             // Split the SQL into the bits we need
             string sqlSelectRemoved, sqlOrderBy;
-            if (!SplitSqlForPaging(sql, out sqlCount, out sqlSelectRemoved, out sqlOrderBy))
+            if (!SplitSqlForPaging(
+                sql,
+                sqlCountField,
+                out sqlCount,
+                out sqlSelectRemoved, 
+                out sqlOrderBy))
                 throw new Exception("Unable to parse SQL statement for paged query");
             if (_dbType == DbType.Oracle && sqlSelectRemoved.StartsWith("*"))
                 throw new Exception("GetList must alias '*' when performing a paged query.\neg. select t.* from table t order by t.id");
@@ -202,7 +212,12 @@ namespace DapperInfrastructure.DapperWrapper.Repository
         static Regex rxColumns = new Regex(@"\A\s*SELECT\s+((?:\((?>\((?<depth>)|\)(?<-depth>)|.?)*(?(depth)(?!))\)|.)*?)(?<!,\s+)\s\bFROM\b", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.Compiled);
         static Regex rxOrderBy = new Regex(@"\bORDER\s+BY\s+(?:\((?>\((?<depth>)|\)(?<-depth>)|.?)*(?(depth)(?!))\)|[\w\(\)\.])+(?:\s+(?:ASC|DESC))?(?:\s*,\s*(?:\((?>\((?<depth>)|\)(?<-depth>)|.?)*(?(depth)(?!))\)|[\w\(\)\.])+(?:\s+(?:ASC|DESC))?)*", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.Compiled);
         static Regex rxDistinct = new Regex(@"\ADISTINCT\s", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.Compiled);
-        private static bool SplitSqlForPaging(string sql, out string sqlCount, out string sqlSelectRemoved, out string sqlOrderBy)
+        private static bool SplitSqlForPaging(
+            string sql, 
+            string sqlCountField,
+            out string sqlCount,
+            out string sqlSelectRemoved,
+            out string sqlOrderBy)
         {
             sqlSelectRemoved = null;
             sqlCount = null;
@@ -217,11 +232,21 @@ namespace DapperInfrastructure.DapperWrapper.Repository
             Group g = m.Groups[1];
             sqlSelectRemoved = sql.Substring(g.Index);
 
-            if (rxDistinct.IsMatch(sqlSelectRemoved))
-                sqlCount = sql.Substring(0, g.Index) + "COUNT(" + m.Groups[1].ToString().Trim() + ") " + sql.Substring(g.Index + g.Length);
+            if (!string.IsNullOrEmpty(sqlCountField))
+            {
+                sqlCount = sql.Substring(0, g.Index) + "COUNT(" + sqlCountField + ") " +
+                           sql.Substring(g.Index + g.Length);
+            }
             else
-                sqlCount = sql.Substring(0, g.Index) + "COUNT(*) " + sql.Substring(g.Index + g.Length);
+            {
 
+
+                if (rxDistinct.IsMatch(sqlSelectRemoved))
+                    sqlCount = sql.Substring(0, g.Index) + "COUNT(" + m.Groups[1].ToString().Trim() + ") " +
+                               sql.Substring(g.Index + g.Length);
+                else
+                    sqlCount = sql.Substring(0, g.Index) + "COUNT(*) " + sql.Substring(g.Index + g.Length);
+            }
 
             // Look for an "ORDER BY <whatever>" clause
             m = rxOrderBy.Match(sqlCount);

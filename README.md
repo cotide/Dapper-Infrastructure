@@ -111,6 +111,39 @@ using (var db = NewDB)
 ```
 
 
+### 分页查询 (Select Distinct)
+
+``` c# 
+
+int pageIndex = 1;
+int pageSize = 10;
+
+using (var db = NewDB)
+{
+    var sql = Sql.Builder.Append(" select distinct a.Id," +
+                                 " a.`Name` as ApplicationMtr_Name, " +
+                                 "a.CategoryId as ApplicationMtr_CategoryId," +
+                                 " a.CreateTime as ApplicationMtr_CreateTime, " +
+                                 "c.`Name` as CategoryApplicationMtr_Name   " +
+                                 " from ApplicationMTR as a" +
+                                 " left join CategoryApplicationMTR as c on a.CategoryId = c.Id");
+    sql.Where(" a.Name = @0 ", "Game");
+    // 处理 Select Count Distinct 情况
+    sql.SetCountField(" distinct a.Id ");
+    
+    // 多表分页查询
+    var result2 = db.SqlQuery.PageList<MyDtoClass>(
+        pageIndex,
+        pageSize,
+        sql);
+     
+    Console.WriteLine(result2.TotalCount);
+    Assert.IsTrue(result2.TotalCount > 0);
+}
+
+```
+
+
 ## 参考资料
 * [Dapper](https://github.com/StackExchange/Dapper)
 * [PetaPoco](https://github.com/CollaboratingPlatypus/PetaPoco)

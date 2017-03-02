@@ -141,7 +141,7 @@ namespace DapperInfrastructure.DapperWrapper.Repository
         /// <returns></returns>
         public PageList<TEntity> PageList(int pageIndex, int pageSize, Sql sql)
         {
-            var pageData = Page<TEntity>(pageIndex, pageSize, sql.SQL, sql.Arguments);
+            var pageData = Page<TEntity>(pageIndex, pageSize, sql.SQL, sql.CountField, sql.Arguments);
             var result = pageData.GetPage<TEntity>(pageIndex, pageSize);
             return result;
         }

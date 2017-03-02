@@ -13,7 +13,7 @@ namespace DapperInfrastructure.Tests.DB
     public class DBTest  
     { 
         #region MySQL  
-        public static readonly string MySqlConntion = @"server=localhost;user id=root;password=88888888;persistsecurityinfo=True;database=cotide_test;charset=utf8;";  
+        public static readonly string MySqlConntion = @"server=23.106.153.199;user id=root;password=88888888;persistsecurityinfo=True;database=cotide_test;charset=utf8;";  
         public static readonly string MySqlProviderName = "MySql.Data.MySqlClient"; 
         #endregion
 
@@ -168,6 +168,7 @@ namespace DapperInfrastructure.Tests.DB
                     pageSize,
                     sql);
 
+  
                 Console.WriteLine(result2.TotalCount);
                 Assert.IsTrue(result2.TotalCount > 0); 
             }
@@ -176,25 +177,65 @@ namespace DapperInfrastructure.Tests.DB
 
 
 
-
-
-        public class MyDtoClass
+        /// <summary>
+        /// 多条件 分页查询 
+        /// 处理Select Distinct  分页查询
+        /// </summary>
+        [TestMethod]
+        public void SqlPagingForManyTableDistinctTest()
         {
-            public  string Id { get; set; }
+            int pageIndex = 1;
+            int pageSize = 10;
 
-             public string ApplicationMtr_Name { get; set; }
-
-             public string ApplicationMtr_CategoryId { get; set; }
-             
-             public DateTime ApplicationMtr_CreateTime { get; set; }
-             
-             public string CategoryApplicationMtr_Name { get; set; }
+            using (var db = NewDB)
+            {
+                var sql = Sql.Builder.Append(" select distinct a.Id," +
+                                             " a.`Name` as ApplicationMtr_Name, " +
+                                             "a.CategoryId as ApplicationMtr_CategoryId," +
+                                             " a.CreateTime as ApplicationMtr_CreateTime, " +
+                                             "c.`Name` as CategoryApplicationMtr_Name   " +
+                                             " from ApplicationMTR as a" +
+                                             " left join CategoryApplicationMTR as c on a.CategoryId = c.Id");
+                sql.Where(" a.Name = @0 ", "Game");
+                // 处理 Select Count Distinct 情况
+                sql.SetCountField(" distinct a.Id ");
+                
+                // 多表分页查询
+                var result2 = db.SqlQuery.PageList<MyDtoClass>(
+                    pageIndex,
+                    pageSize,
+                    sql);
+                 
+                Console.WriteLine(result2.TotalCount);
+                Assert.IsTrue(result2.TotalCount > 0);
+            }
         }
 
 
-   
+
+
+
+
 
         #region Helper
+
+        /// <summary>
+        /// Dto 对象
+        /// </summary>
+        public class MyDtoClass
+        {
+            public string Id { get; set; }
+
+            public string ApplicationMtr_Name { get; set; }
+
+            public string ApplicationMtr_CategoryId { get; set; }
+
+            public DateTime ApplicationMtr_CreateTime { get; set; }
+
+            public string CategoryApplicationMtr_Name { get; set; }
+        }
+
+
 
         private DapperInfrastructure.DB NewDB 
         {

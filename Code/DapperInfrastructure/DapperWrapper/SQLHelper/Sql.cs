@@ -16,31 +16,48 @@ namespace DapperInfrastructure.DapperWrapper.SQLHelper
 
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="sql">SQL</param>
-        /// <param name="args">Parameter</param>
+ 
         public Sql(string sql, params object[] args)
         {
             _sql = sql;
             _args = args; 
         } 
+ 
 
-        /// <summary>
-        /// SQL Object
-        /// </summary>
         public static Sql Builder
         {
             get { return new Sql(); }
         }
-         
+
+
+
         string _sql; 
         string _sqlFinal; 
         Sql _obj; 
         object[] _args;  
-        object[] _argsFinal;
-         
+        object[] _argsFinal; 
+        string countField;
+
+        /// <summary>
+        /// 总数查询字段
+        /// </summary>
+        public string CountField
+        {
+            get
+            {
+                return countField;
+            }
+        }
+
+
+        public Sql SetCountField(string field)
+        {
+            this.countField = field;
+            return this;
+        }
+
+
+
         private void Build()
         {
             // already built?

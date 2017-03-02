@@ -1,17 +1,19 @@
 # Dapper-Infrastructure
 > Dapper 扩展库 - (Dapper Extensions Library) 
 
-#### 优点
+## 优点
 
 * 集成PetaPoco的SQL Linq语法糖.
 * 支持多表关联分页查询.
 * CRUD 封装/简化调用方式.
 
-#### 事例
+## 事例
+
+
+### 新增实体
 
 ``` c#
-
-// 新增实体 
+ 
 using (var db = NewDB)
 {
 	var repository = db.GetRepository<ApplicationMtr>();
@@ -23,9 +25,10 @@ using (var db = NewDB)
 
 ```
 
-``` c#
+### 新增实体 - 事务
 
-// 新增实体 - 启动事务
+``` c#
+ 
 using (var db = NewDB)
 {  
 	// 开始事务
@@ -54,10 +57,10 @@ using (var db = NewDB)
 
 ```
 
+### 查询
 
 ``` c#
-
-// 查询
+ 
 using (var db = NewDB)
 {   
 	// 方式1
@@ -77,7 +80,9 @@ using (var db = NewDB)
 
 ```
 
-``` code 
+### 分页查询
+
+``` c# 
 
 int pageIndex = 1;
 int pageSize = 10;

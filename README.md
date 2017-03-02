@@ -7,8 +7,7 @@
 * /Code/... 程序文件
 * /DB/Init_DB.sql MYSQL初始化脚本
 
-
-## 特定
+## 特点
 
 * 集成PetaPoco的SQL Linq语法糖.
 * 支持多表关联分页查询.

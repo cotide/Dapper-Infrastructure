@@ -79,17 +79,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BH.BLL\BH.BLL.csproj">
-      <Project>{e2f3bfb4-893f-4abd-9860-ff662f25a934}</Project>
-      <Name>BH.BLL</Name>
-    </ProjectReference>
     <ProjectReference Include="..\BH.Domain\BH.Domain.csproj">
       <Project>{c71b62b6-b035-45a8-b326-870707d8e793}</Project>
       <Name>BH.Domain</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\BH.Framework\BH.Framework.csproj">
-      <Project>{3475c007-a405-4ff1-ab8d-0ac3112cee66}</Project>
-      <Name>BH.Framework</Name>
     </ProjectReference>
     <ProjectReference Include="..\DapperInfrastructure.Extensions\DapperInfrastructure.Extensions.csproj">
       <Project>{968980b2-a12b-455d-a98c-26fbe8e01f89}</Project>

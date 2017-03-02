@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using BH.Framework.Swagger;
+using System.Threading.Tasks; 
 
 namespace BH.Domain.Input.Category
 {

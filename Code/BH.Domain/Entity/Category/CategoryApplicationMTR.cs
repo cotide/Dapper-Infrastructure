@@ -1,5 +1,4 @@
-﻿using BH.Domain.Entity.Base;
-using BH.Framework.Swagger;
+﻿using BH.Domain.Entity.Base; 
 
 namespace BH.Domain.Entity.Category
 {

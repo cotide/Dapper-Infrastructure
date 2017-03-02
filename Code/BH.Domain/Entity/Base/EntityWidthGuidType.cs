@@ -1,5 +1,4 @@
-﻿using System;
-using BH.Framework.Extensions;
+﻿using System; 
 using DapperInfrastructure.Extensions.Domain;
 
 namespace BH.Domain.Entity.Base

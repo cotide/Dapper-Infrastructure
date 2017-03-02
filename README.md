@@ -7,11 +7,10 @@
 * 支持多表关联分页查询.
 * CRUD 封装/简化调用方式.
 
-
-
 #### 事例
 
-``` code
+``` c#
+
 // 新增实体 
 using (var db = NewDB)
 {
@@ -24,7 +23,8 @@ using (var db = NewDB)
 
 ```
 
-``` code
+``` c#
+
 // 新增实体 - 启动事务
 using (var db = NewDB)
 {  
@@ -51,10 +51,12 @@ using (var db = NewDB)
 	// 事务提交
 	db.Commit();  
 } 
+
 ```
 
 
-``` code
+``` c#
+
 // 查询
 using (var db = NewDB)
 {   

@@ -13,7 +13,7 @@ namespace DapperInfrastructure.Tests.DB
     public class DBTest  
     { 
         #region MySQL  
-        public static readonly string MySqlConntion = @"server=23.106.153.199;user id=root;password=88888888;persistsecurityinfo=True;database=cotide_test;charset=utf8;";  
+        public static readonly string MySqlConntion = @"server=localhost;user id=root;password=88888888;persistsecurityinfo=True;database=cotide_test;charset=utf8;";  
         public static readonly string MySqlProviderName = "MySql.Data.MySqlClient"; 
         #endregion
 

@@ -119,8 +119,8 @@ using (var db = NewDB)
 	Console.WriteLine(result.Count());
 	Assert.IsTrue(result.Count() > 0); 
 
-    // 方式3
-    result = db.GetSqlQuery.GetList<ApplicationMtr>(
+        // 方式3
+        result = db.GetSqlQuery.GetList<ApplicationMtr>(
         Sql.Builder.SelectAll().From<ApplicationMtr>()
         .Where(" Name = @0 ", "Game"));
     Console.WriteLine(result.Count());
@@ -158,14 +158,14 @@ int pageSize = 10;
 
 using (var db = NewDB)
 { 
-    // 方式1
+        // 方式1
 	var sql = Sql.Builder.Append(" select a.Id," +
-									" a.`Name` as ApplicationMtr_Name, " +
-									"a.CategoryId as ApplicationMtr_CategoryId," +
-									" a.CreateTime as ApplicationMtr_CreateTime, " +
-									"c.`Name` as CategoryApplicationMtr_Name   " +
-									" from ApplicationMTR as a" +
-									" left join CategoryApplicationMTR as c on a.CategoryId = c.Id");
+	   "a.`Name` as ApplicationMtr_Name," + 
+	   "a.CategoryId as ApplicationMtr_CategoryId," +
+	   "a.CreateTime as ApplicationMtr_CreateTime," +
+	   "c.`Name` as CategoryApplicationMtr_Name   " +
+	   " from ApplicationMTR as a" +
+	   " left join CategoryApplicationMTR as c on a.CategoryId = c.Id");
 	sql.Where(" a.Name = @0 ", "Game");
 
 	// 多表分页查询
@@ -177,8 +177,8 @@ using (var db = NewDB)
 	Console.WriteLine(result2.TotalCount);
 	Assert.IsTrue(result2.TotalCount > 0); 
 
-    // 方式2 
-    sql = Sql.Builder.Select("a.id,a.`Name` as ApplicationMtr_Name," +
+        // 方式2 
+        sql = Sql.Builder.Select("a.id,a.`Name` as ApplicationMtr_Name," +
                              "a.CategoryId as ApplicationMtr_CategoryId," +
                              "a.CreateTime as ApplicationMtr_CreateTime," +
                              "c.`Name` as CategoryApplicationMtr_Name ")
@@ -186,13 +186,13 @@ using (var db = NewDB)
                              .LeftJoin<CategoryApplicationMtr>("c").On("a.CategoryId = c.Id")
                              .Where(" a.Name = @0 ", "Game");
 
-    result2 = db.GetSqlQuery.PageList<MyDtoClass>(
+        result2 = db.GetSqlQuery.PageList<MyDtoClass>(
         pageIndex,
         pageSize,
         sql);
  
-    Console.WriteLine(result2.TotalCount);
-    Assert.IsTrue(result2.TotalCount > 0); 
+    	Console.WriteLine(result2.TotalCount);
+    	Assert.IsTrue(result2.TotalCount > 0); 
 
 }
 

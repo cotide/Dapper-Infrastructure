@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using DapperInfrastructure.Extensions.Domain;
+using DapperInfrastructure.Extensions.Domain.Base;
+using DapperInfrastructure.Extensions.Mapper;
 
 namespace DapperInfrastructure.DapperWrapper.SQLHelper
 {  
@@ -193,6 +196,15 @@ namespace DapperInfrastructure.DapperWrapper.SQLHelper
             return this;
         }
 
+
+        public Sql AppendFormat(string sql, params object[] args)
+        { 
+            return Append(new Sql(string.Format(sql, args)));
+        }
+          
+      
+
+
         public Sql Append(string sql, params object[] args)
         {
             return Append(new Sql(sql, args));
@@ -218,10 +230,20 @@ namespace DapperInfrastructure.DapperWrapper.SQLHelper
             return Append(new Sql("SELECT " + String.Join(", ", (from x in columns select x.ToString()).ToArray())));
         }
 
+        public Sql SelectAll(params object[] columns)
+        {
+            return Append(new Sql("SELECT  * " ));
+        }
+
         public Sql From(params object[] tables)
         {
             return Append(new Sql("FROM " + String.Join(", ", (from x in tables select x.ToString()).ToArray())));
         }
+
+        public Sql From<T>(string asName = null) where T : EntityByType
+        {
+            return Append(new Sql("FROM " +  TableMaper.GetName<T>() +" "+ asName ));
+        } 
 
         public Sql GroupBy(params object[] columns)
         {
@@ -242,6 +264,31 @@ namespace DapperInfrastructure.DapperWrapper.SQLHelper
         {
             return Join("LEFT JOIN ", table);
         }
+
+
+        public SqlJoinClause Join(string table)
+        {
+            return Join("LEFT JOIN ", table);
+        }
+
+
+        public SqlJoinClause InnerJoin<T>(string asName = null) where T : EntityByType
+        {
+            return Join("INNER JOIN ", TableMaper.GetName<T>() + " " + asName);
+        }
+
+        public SqlJoinClause LeftJoin<T>(string asName = null) where T : EntityByType
+        {
+            return Join("LEFT JOIN ", TableMaper.GetName<T>() + " " + asName);
+        }
+
+
+        public SqlJoinClause Join<T>(string asName = null) where T : EntityByType
+        { 
+            return Join("JOIN  ", TableMaper.GetName<T>() + " " + asName);
+        }
+
+
 
         public class SqlJoinClause
         {

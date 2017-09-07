@@ -31,7 +31,7 @@ namespace DapperInfrastructure.DapperWrapper.Pagination
         /// <summary>
         /// 数据
         /// </summary>
-        public IEnumerable<T> Items { get; set; }
+        public IList<T> Items { get; set; }
          
     }
 }

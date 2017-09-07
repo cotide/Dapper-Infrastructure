@@ -1,6 +1,4 @@
-﻿using DapperInfrastructure.Extensions.Domain.Base;
-
-namespace DapperInfrastructure.Extensions.Domain
+﻿namespace DapperInfrastructure.Extensions.Domain.Base
 {
      
     public abstract class EntityByType : IEntityByType
@@ -13,24 +11,22 @@ namespace DapperInfrastructure.Extensions.Domain
     /// </summary>
     /// <typeparam name="T1"></typeparam>  
     public abstract class EntityByType<T1> : EntityByType
-    { 
+    {
 
         /// <summary>
         /// 构造函数
         /// </summary>
         protected EntityByType()
-        {           
-          
-        } 
-  
+        {
+
+        }
+
 
         /// <summary>
         /// 主键
         /// </summary>  
         //[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)] 
-        public virtual T1 ID { get; set; }
+        public virtual T1 Id { get; set; }
 
-      
-        
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using DbType = DapperInfrastructure.DapperWrapper.Enum.DbType;
 
-namespace DapperInfrastructure.DapperWrapper.IFactory
+namespace DapperInfrastructure.DapperWrapper.Factory.IFactory
 {
     /// <summary>
     /// 连接工厂接口

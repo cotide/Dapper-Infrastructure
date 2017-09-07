@@ -1,9 +1,9 @@
-﻿using DapperInfrastructure.Extensions.Domain;
-using DapperInfrastructure.DapperWrapper.Repository;
+﻿using DapperInfrastructure.DapperWrapper.Repository;
 using DapperInfrastructure.DapperWrapper.UnitOfWork;
 using DapperInfrastructure.Extensions.Domain;
+using DapperInfrastructure.Extensions.Domain.Base;
 
-namespace DapperInfrastructure.DapperWrapper.IFactory
+namespace DapperInfrastructure.DapperWrapper.Factory.IFactory
 {
     /// <summary>
     /// 仓储接口

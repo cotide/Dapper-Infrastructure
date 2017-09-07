@@ -1,166 +1,95 @@
-﻿#region using
-
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
-#endregion
 
 namespace DapperInfrastructure.Extensions.Collections
 {
     /// <summary>
-    /// 分页列表接口
+    /// 分页对象
     /// </summary>
-    public interface IPagerList
-    {
-        int TotalCount { get; set; }
-        int TotalPages { get; set; }
-        int PageIndex { get; set; }
-        int PageSize { get; set; }
-        bool IsPreviousPage { get; }
-        bool IsNextPage { get; }
-    }
-
-    /// <summary>
-    /// 分页列表接口实现类
-    /// </summary>
-    /// <typeparam name="T">元素类型</typeparam>
-    public class PagerList<T> : List<T>, IPagerList 
+    /// <typeparam name="T"></typeparam>
+    public class PageList<T>
     {
         /// <summary>
-        /// 构造器
+        /// 开始页码
         /// </summary>
-        /// <param name="source">数据源</param>
-        /// <param name="index">页码</param>
-        /// <param name="pageSize">页面大小</param>
-        public PagerList(IQueryable<T> source, int index, int pageSize)
-        {
-            int total = source.Count();
-            TotalCount = total;
-            TotalPages = total / pageSize;
-
-            if (total % pageSize > 0)
-                TotalPages++;
-
-            PageSize = pageSize;
-            PageIndex = index; 
-            AddRange(source.Skip((index - 1) * pageSize).Take(pageSize).ToList());
-        }
+        public int PageIndex { get; set; }
 
         /// <summary>
-        /// 构造器
+        /// 分页大小
         /// </summary>
-        /// <param name="source">数据源</param>
-        /// <param name="totalRecords">总记录数</param>
-        /// <param name="index">页码</param>
-        /// <param name="pageSize">页面大小</param>
-        public PagerList(IEnumerable<T> source, int totalRecords, int index, int pageSize)
-        {
-            TotalCount = totalRecords;
-            TotalPages = totalRecords / pageSize;
+        public int PageSize { get; set; }
 
-            if (totalRecords % pageSize > 0)
-                TotalPages++;
-
-            PageSize = pageSize;
-            PageIndex = index;
-            AddRange(source.ToList());
-        }
-        #region IPagerList Members
         /// <summary>
         /// 总页数
         /// </summary>
-        public int TotalPages { get; set; }
+        public int TotalPage { get; set; }
+
         /// <summary>
-        /// 总记录数
+        /// 总条数
         /// </summary>
         public int TotalCount { get; set; }
+
         /// <summary>
-        /// 页码
+        /// 数据列表
         /// </summary>
-        public int PageIndex { get; set; }
+        public IList<T> Items { get; set; }
+
         /// <summary>
-        /// 页面大小
+        /// 构造函数
         /// </summary>
-        public int PageSize { get; set; }
-        /// <summary>
-        /// 是否有上一页
-        /// </summary>
-        public bool IsPreviousPage
+        /// <param name="list"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="totalPage"></param>
+        /// <param name="totalCount"></param>
+        public PageList(IList<T> list, int pageIndex, int pageSize, int totalPage, int totalCount)
         {
-            get { return ((PageIndex - 1) > 0); }
-        }
-        /// <summary>
-        /// 是否有下一页
-        /// </summary>
-        public bool IsNextPage
-        {
-            get { return (PageIndex * PageSize) <= TotalCount; }
+            Items = list;
+            PageIndex = pageIndex;
+            PageSize = pageSize;
+            TotalPage = totalPage;
+            TotalCount = totalCount;
         }
 
-        #endregion
-    }
 
-    /// <summary>
-    /// 分页列表类扩展方法类
-    /// </summary>
-    public static class Pagination 
-    {
-        #region IQueryable<T> extensions
         /// <summary>
-        /// 数据源转化为分页列表类
+        /// 构造函数
         /// </summary>
-        /// <typeparam name="T">元素类型</typeparam>
-        /// <param name="source">数据源</param>
-        /// <param name="index">页码</param>
-        /// <param name="pageSize">页面大小</param>
-        /// <returns>分页列表</returns>
-        public static PagerList<T> ToPagedList<T>(this IQueryable<T> source, int index, int pageSize)  
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="totalPage"></param>
+        /// <param name="totalCount"></param>
+        public PageList(int pageIndex, int pageSize, int totalPage, int totalCount)
         {
-            return new PagerList<T>(source, index, pageSize);
+            PageIndex = pageIndex;
+            PageSize = pageSize;
+            TotalPage = totalPage;
+            TotalCount = totalCount;
         }
 
         /// <summary>
-        /// 数据源转化分页列表(页面大小默认为10)
+        /// 构造函数
         /// </summary>
-        /// <typeparam name="T">元素类型</typeparam>
-        /// <param name="source">数据源</param>
-        /// <param name="index">页码</param>
-        /// <returns>分页列表</returns>
-        public static PagerList<T> ToPagedList<T>(this IQueryable<T> source, int index) 
+        /// <param name="list"></param>
+        /// <param name="pageIndex"></param>
+        /// <param name="pageSize"></param>
+        public PageList(IList<T> list, int pageIndex, int pageSize)
         {
-            return new PagerList<T>(source, index, 10);
-        }
+            Items = list;
+            PageIndex = pageIndex;
+            PageSize = pageSize;
 
-        #endregion
-
-        #region IEnumerable<T> extensions
-        /// <summary>
-        /// 数据源转化为分页列表类
-        /// </summary>
-        /// <typeparam name="T">元素类型</typeparam>
-        /// <param name="source">数据源</param>
-        /// <param name="pageIndex">页码</param>
-        /// <param name="pageSize">页面大小</param>
-        /// <returns>分页列表</returns>
-        public static PagerList<T> ToPagedList<T>(this IEnumerable<T> source, int pageIndex, int pageSize) 
-        {
-            return new PagerList<T>(source.AsQueryable(), pageIndex, pageSize);
+            TotalCount = list.Count();
+            TotalPage = (int)Math.Ceiling((double)TotalCount / (double)PageSize);
         }
 
         /// <summary>
-        /// 数据源转化为分页列表类
+        /// 构造函数
         /// </summary>
-        /// <typeparam name="T">元素类型</typeparam>
-        /// <param name="source">数据源</param>
-        /// <param name="pageIndex">页码</param>
-        /// <param name="pageSize">页面大小</param>
-        /// <param name="totalCount">总记录数</param>
-        /// <returns>分页列表</returns>
-        public static PagerList<T> ToPagedList<T>(this IEnumerable<T> source, int pageIndex, int pageSize, int totalCount) 
+        public PageList()
         {
-            return new PagerList<T>(source, totalCount, pageIndex, pageSize);
-        }
 
-        #endregion
+        }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using DapperInfrastructure.Extensions.Domain;
-using DapperInfrastructure.DapperWrapper.IFactory;
+using DapperInfrastructure.DapperWrapper.Factory.IFactory;
 using DapperInfrastructure.DapperWrapper.Repository;
 using DapperInfrastructure.DapperWrapper.UnitOfWork;
+using DapperInfrastructure.Extensions.Domain;
+using DapperInfrastructure.Extensions.Domain.Base;
 
 namespace DapperInfrastructure.DapperWrapper.Factory
 {

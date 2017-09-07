@@ -1,5 +1,4 @@
-﻿  
-using System;
+﻿using System;
 using DapperInfrastructure.Extensions.Helper;
 
 namespace DapperInfrastructure.Extensions.Domain.Base
@@ -12,11 +11,11 @@ namespace DapperInfrastructure.Extensions.Domain.Base
         public EntityWidthStringType()
         {
             // 默认初始化
-            ID = Guid.NewGuid().ToId();
+            Id = Guid.NewGuid().ToId();
         }
 
         [Dapper.Contrib.Extensions.ExplicitKey]
-        public override string ID { get; set; }
+        public override string Id { get; set; }
          
     }
 }

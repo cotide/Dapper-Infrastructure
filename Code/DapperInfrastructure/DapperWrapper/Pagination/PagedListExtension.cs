@@ -1,4 +1,5 @@
 ﻿using System;
+using DapperInfrastructure.Extensions.Collections;
 
 namespace DapperInfrastructure.DapperWrapper.Pagination
 {

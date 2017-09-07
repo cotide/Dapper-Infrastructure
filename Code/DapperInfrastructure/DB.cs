@@ -1,12 +1,14 @@
-﻿ 
-
-using System;
+﻿using System;
+using System.Data;
 using System.Data.Common;
-using DapperInfrastructure.Extensions.Domain;
 using DapperInfrastructure.DapperWrapper.Factory;
-using DapperInfrastructure.DapperWrapper.IFactory;
+using DapperInfrastructure.DapperWrapper.Factory.IFactory;
 using DapperInfrastructure.DapperWrapper.Repository;
+using DapperInfrastructure.DapperWrapper.Repository.SQL;
 using DapperInfrastructure.DapperWrapper.UnitOfWork;
+using DapperInfrastructure.Extensions.Domain;
+using DapperInfrastructure.Extensions.Domain.Base;
+using DapperInfrastructure.Extensions.Mapper; 
 
 namespace DapperInfrastructure
 {
@@ -20,38 +22,47 @@ namespace DapperInfrastructure
         /// </summary> 
         private  IConnectionFactory _dbFactory;
 
+      
 
         #region 数据库对象创建
 
         /// <summary>
         /// 初始化数据库
         /// </summary>
-        public DB(): this("default")
+        public DB()
+            : this("Default")
         {
           
         }
-
-        /// <summary>
-        /// 创建数据库
-        /// </summary>
-        /// <returns></returns>
-        public static DB New()
-        {
-             return new DB();
-        }
-
+         
+ 
 
 
         /// <summary>
         /// 创建数据库
         /// </summary>
+        /// <param name="connName">数据库连接名称</param> 
         /// <returns></returns>
-        public static DB New(string connectionName)
+        public static DB New(
+            string connName)
         {
-            return new DB(connectionName);
+            return new DB(connName);
         }
 
 
+
+
+
+
+         
+        /// <summary>
+        /// 创建数据库
+        /// </summary>
+        /// <returns></returns>
+        public static DB New(DbConnection db)
+        {
+            return new DB(db);
+        }
 
         /// <summary>
         /// 创建数据库
@@ -83,13 +94,24 @@ namespace DapperInfrastructure
             _dbFactory = new SqlConnectionFactory(connectionName);
         }
 
+
+        /// <summary>
+        /// 初始化数据库
+        /// </summary> 
+        public DB(DbConnection db)
+        {
+            _dbFactory = new SqlConnectionFactory(db);
+        }
+        
+
+
         /// <summary>
         /// 初始化数据库
         /// </summary>
         /// <param name="connectionString">连接字符串</param>
         /// <param name="providerName">驱动名称</param>
         public  DB(string connectionString, string providerName)
-        {
+        { 
             _dbFactory = new SqlConnectionFactory(connectionString, providerName);
         }
 
@@ -101,6 +123,17 @@ namespace DapperInfrastructure
         public  DB(string connectionString, DbProviderFactory provider)
         {
             _dbFactory = new SqlConnectionFactory(connectionString, provider);
+        }
+
+
+
+        /// <summary>
+        /// 获取Domain 实体
+        /// </summary>  
+        /// <returns></returns>
+        public  string GetTableName<T>() where T : EntityByType
+        {
+            return TableMaper.GetName<T>();
         }
 
 
@@ -122,7 +155,7 @@ namespace DapperInfrastructure
                 _dbFactory = new SqlConnectionFactory("default");
             }
             if (_unitOfWork == null)
-            { 
+            {
                 _unitOfWork = new DapperUnitOfWork(_dbFactory, RepositoryResolver.Instance);
             }
             return _unitOfWork;
@@ -134,7 +167,7 @@ namespace DapperInfrastructure
         /// </summary>
         /// <typeparam name="TEntity"></typeparam>
         /// <returns></returns>
-        public IRepository<TEntity> GetRepository<TEntity>() where TEntity : EntityByType 
+        public IRepository<TEntity> GetRepository<TEntity>() where TEntity : EntityByType
         {
             return this.GetUnitOfWork().GetRepository<TEntity>();
         }
@@ -142,9 +175,9 @@ namespace DapperInfrastructure
 
 
         /// <summary>
-        /// SQL 查询
+        /// 获取只读仓储
         /// </summary>
-        public SqlQueryBase SqlQuery
+        public SqlQueryBase GetSqlQuery
         {
             get
             {
@@ -154,14 +187,34 @@ namespace DapperInfrastructure
 
 
 
+              
+        /// <summary>
+        /// 获取SQL脚本执行处理对象
+        /// </summary>
+        public SqlExecuteBase GetSqlRun
+        {
+            get
+            {
+                return new SqlExecuteBase(this.GetUnitOfWork() as DapperUnitOfWork);
+            }
+        } 
+
+
         /// <summary>
         /// 开始事务
         /// </summary>
-        public void BeginTransaction()
+        public IDbTransaction BeginTransaction()
         {
-            this.GetUnitOfWork().BeginTransaction();
+           return this.GetUnitOfWork().BeginTransaction();
         }
 
+
+        public void ChangeDatabase(string dbName)
+        {
+            this.GetUnitOfWork().ChangeDatabase(dbName);
+        }
+              
+         
         /// <summary>
         /// 事务提交
         /// </summary>
@@ -180,9 +233,14 @@ namespace DapperInfrastructure
          
         public void Dispose()
         {
-            
-        }
+            this.GetUnitOfWork().Dispose(); 
 
+        } 
+
+         ~DB()
+         {
+             GC.SuppressFinalize(this);
+         }
 
     }
 }

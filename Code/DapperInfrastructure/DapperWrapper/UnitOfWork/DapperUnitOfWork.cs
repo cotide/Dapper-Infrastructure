@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Data;
-using DapperInfrastructure.Extensions.Domain;
-using DapperInfrastructure.DapperWrapper.IFactory;
+using DapperInfrastructure.DapperWrapper.Factory.IFactory; 
 using DapperInfrastructure.DapperWrapper.Repository;
+using DapperInfrastructure.Extensions.Domain;
+using DapperInfrastructure.Extensions.Domain.Base;
 using DbType = DapperInfrastructure.DapperWrapper.Enum.DbType;
 
 namespace DapperInfrastructure.DapperWrapper.UnitOfWork
@@ -37,8 +38,7 @@ namespace DapperInfrastructure.DapperWrapper.UnitOfWork
         {
             get { return _connectionFactory.DbType; }
         }
-
-
+         
 
         /// <summary>
         /// 构造函数
@@ -66,23 +66,46 @@ namespace DapperInfrastructure.DapperWrapper.UnitOfWork
             return _resolver.GetRepositoryForEntity<TEntity>(this);
         }
 
-        public virtual void BeginTransaction()
+
+
+        public virtual IDbTransaction BeginTransaction()
         {
             GetOpenConnection();
-            if (DbTransaction != null) return;
-            DbTransaction = DbConnection.BeginTransaction();
+            if (DbTransaction != null)
+            {
+                return DbTransaction;
+            }
+            else
+            {
+                DbTransaction = DbConnection.BeginTransaction();
+                return DbTransaction;
+            }
+          
+        }
+         
+        public void ChangeDatabase(string dbName)
+        {
+            GetOpenConnection();
+            DbConnection.ChangeDatabase(dbName.ToString());
         }
 
         public virtual void Commit()
         {
-            DbTransaction?.Commit();
+            if (DbTransaction != null)
+            {
+                DbTransaction.Commit();
+            } 
         }
 
         public virtual void Rollback()
         {
-            DbTransaction?.Rollback();
+            if (DbTransaction != null)
+            {
+                DbTransaction.Rollback();
+            } 
         }
 
+         
         public virtual void Dispose()
         {
             if (DbTransaction != null)

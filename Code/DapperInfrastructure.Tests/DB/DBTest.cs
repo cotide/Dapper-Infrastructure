@@ -2,6 +2,7 @@
 using System.Linq;
 using BH.Domain.Entity.Category;
 using DapperInfrastructure.DapperWrapper.SQLHelper;
+using DapperInfrastructure.Tests.Enum;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DapperInfrastructure.Tests.DB
@@ -12,11 +13,6 @@ namespace DapperInfrastructure.Tests.DB
     [TestClass]
     public class DBTest  
     { 
-        #region MySQL  
-        public static readonly string MySqlConntion = @"server=localhost;user id=root;password=88888888;persistsecurityinfo=True;database=cotide_test;charset=utf8;";  
-        public static readonly string MySqlProviderName = "MySql.Data.MySqlClient"; 
-        #endregion
-
          
         [TestInitialize]
         public void Init()
@@ -75,7 +71,44 @@ namespace DapperInfrastructure.Tests.DB
 
         }
 
-         
+
+
+
+        /// <summary>
+        /// 新增 - 事务
+        /// </summary> 
+        [TestMethod]
+        public void Insert2_Transaction()
+        {
+            using (var db = NewDB)
+            {
+                // 开始事务
+                db.BeginTransaction();
+
+                var repository = db.GetRepository<ApplicationMtr>();
+
+                repository.Create(new ApplicationMtr()
+                {
+                    Name = "Game"
+                });
+                // 切换数据库实例
+                db.ChangeDatabase(DBName.DB1.ToString()); 
+                repository.Create(new ApplicationMtr()
+                {
+                    Name = "Work"
+                });
+                // 切换数据库实例
+                db.ChangeDatabase(DBName.DB2.ToString()); 
+                repository.Create(new ApplicationMtr()
+                {
+                    Name = "Book"
+                }); 
+                // 事务提交
+                db.Commit();
+            }
+
+        }
+
 
 
         /// <summary>
@@ -87,19 +120,29 @@ namespace DapperInfrastructure.Tests.DB
             using (var db = NewDB)
             {   
                 // 方式1
-                var result =   db.SqlQuery.GetList<ApplicationMtr>(
+                var result =   db.GetSqlQuery.GetList<ApplicationMtr>(
                     "select * from  ApplicationMTR where Name = @0 ", "Game");
                 Console.WriteLine(result.Count());
                 Assert.IsTrue(result.Count()>0);
 
                 // 方式2
-                result = db.SqlQuery.GetList<ApplicationMtr>(
+                result = db.GetSqlQuery.GetList<ApplicationMtr>(
                     Sql.Builder.Append("select * from  ApplicationMTR ")
                     .Where(" Name = @0 ","Game")
                     ); 
                 Console.WriteLine(result.Count());
-                Assert.IsTrue(result.Count() > 0); 
+                Assert.IsTrue(result.Count() > 0);
+
+
+                // 方式3
+                result = db.GetSqlQuery.GetList<ApplicationMtr>(
+                    Sql.Builder.SelectAll().From<ApplicationMtr>()
+                        .Where(" Name = @0 ", "Game"));
+                Console.WriteLine(result.Count());
+                Assert.IsTrue(result.Count() > 0);
             }
+
+
         }
 
 
@@ -132,12 +175,19 @@ namespace DapperInfrastructure.Tests.DB
 
             using (var db = NewDB)
             {
-               // 单表分页查询
+               // 单表分页查询 方式1
                 var result = db.GetRepository<ApplicationMtr>()
                    .PageList<ApplicationMtr>(pageIndex, pageSize,
                    Sql.Builder.Append(" select * from  ApplicationMTR ")); 
                 Console.WriteLine(result.TotalCount);
                 Assert.IsTrue(result.TotalCount > 0);   
+
+                // 单表分页查询 方式2
+                result = db.GetRepository<ApplicationMtr>()
+                    .PageList<ApplicationMtr>(pageIndex, pageSize,
+                        Sql.Builder.SelectAll().From<ApplicationMtr>());
+                Console.WriteLine(result.TotalCount);
+                Assert.IsTrue(result.TotalCount > 0);
             }
         }
 
@@ -153,6 +203,7 @@ namespace DapperInfrastructure.Tests.DB
 
             using (var db = NewDB)
             { 
+                // 方式1
                 var sql = Sql.Builder.Append(" select a.Id," +
                                              " a.`Name` as ApplicationMtr_Name, " +
                                              "a.CategoryId as ApplicationMtr_CategoryId," +
@@ -163,12 +214,30 @@ namespace DapperInfrastructure.Tests.DB
                 sql.Where(" a.Name = @0 ", "Game");
 
                 // 多表分页查询
-                var result2 = db.SqlQuery.PageList<MyDtoClass>(
+                var result2 = db.GetSqlQuery.PageList<MyDtoClass>(
                     pageIndex,
                     pageSize,
                     sql);
 
-  
+
+                Console.WriteLine(result2.TotalCount);
+                Assert.IsTrue(result2.TotalCount > 0);
+
+                // 方式2 
+                sql = Sql.Builder.Select("a.id,a.`Name` as ApplicationMtr_Name," +
+                                         "a.CategoryId as ApplicationMtr_CategoryId," +
+                                         "a.CreateTime as ApplicationMtr_CreateTime," +
+                                         "c.`Name` as CategoryApplicationMtr_Name ")
+                                         .From<ApplicationMtr>("a")
+                                         .LeftJoin<CategoryApplicationMtr>("c").On("a.CategoryId = c.Id")
+                                         .Where(" a.Name = @0 ", "Game");
+
+                result2 = db.GetSqlQuery.PageList<MyDtoClass>(
+                    pageIndex,
+                    pageSize,
+                    sql);
+
+
                 Console.WriteLine(result2.TotalCount);
                 Assert.IsTrue(result2.TotalCount > 0); 
             }
@@ -201,7 +270,7 @@ namespace DapperInfrastructure.Tests.DB
                 sql.SetCountField(" distinct a.Id ");
                 
                 // 多表分页查询
-                var result2 = db.SqlQuery.PageList<MyDtoClass>(
+                var result2 = db.GetSqlQuery.PageList<MyDtoClass>(
                     pageIndex,
                     pageSize,
                     sql);
@@ -213,6 +282,16 @@ namespace DapperInfrastructure.Tests.DB
 
 
 
+        [TestMethod]
+        public void DeleteTest()
+        {
+            using (var db = NewDB)
+            {
+                var sql = Sql.Builder.Append(
+                    string.Format("DELETE FROM {0} WHERE Id = @0", db.GetTableName<ApplicationMtr>()), 1);
+                db.GetSqlRun.Execute(sql);
+            }
+        }
 
 
 
@@ -239,8 +318,14 @@ namespace DapperInfrastructure.Tests.DB
 
         private DapperInfrastructure.DB NewDB 
         {
-            get { return DapperInfrastructure.DB.New(MySqlConntion, MySqlProviderName); }
-        } 
+            get { return DapperInfrastructure.DB.New("default"); }
+        }
+
+
+        private DapperInfrastructure.DB GetNewDB(DBName dbName)
+        {
+            return DapperInfrastructure.DB.New(dbName.ToString());
+        }
 
         #endregion
 

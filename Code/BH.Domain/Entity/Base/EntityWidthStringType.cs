@@ -20,6 +20,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BH.Framework.Extensions;
 using DapperInfrastructure.Extensions.Domain;
+using DapperInfrastructure.Extensions.Domain.Base;
 using DapperInfrastructure.Extensions.Helper;
 
 namespace BH.Domain.Entity.Base
@@ -32,11 +33,11 @@ namespace BH.Domain.Entity.Base
         public EntityWidthStringType()
         {
             // 默认初始化
-            ID = Guid.NewGuid().ToId();
+            Id = Guid.NewGuid().ToId();
         }
 
         [Dapper.Contrib.Extensions.ExplicitKey]
-        public override string ID { get; set; }
+        public override string Id { get; set; }
          
     }
 }

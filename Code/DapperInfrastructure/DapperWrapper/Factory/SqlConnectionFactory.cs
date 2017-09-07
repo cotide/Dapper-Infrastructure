@@ -3,7 +3,7 @@ using System.Configuration;
 using System.Data;
 using System.Data.Common;
 using DapperInfrastructure.DapperWrapper.Encrypt;
-using DapperInfrastructure.DapperWrapper.IFactory;
+using DapperInfrastructure.DapperWrapper.Factory.IFactory;
 using DbType = DapperInfrastructure.DapperWrapper.Enum.DbType;
 
 namespace DapperInfrastructure.DapperWrapper.Factory
@@ -12,12 +12,13 @@ namespace DapperInfrastructure.DapperWrapper.Factory
     /// 连接工厂实例
     /// </summary>
     public class SqlConnectionFactory : IConnectionFactory
-    { 
-         
-        readonly string connName; 
-        readonly string connStr; 
-        readonly string providerTypeName; 
+    {
+
+        readonly string connName;
+        readonly string connStr;
+        readonly string providerTypeName;
         readonly DbProviderFactory _factory;
+        readonly DbConnection dbConnection;
 
         /// <summary>
         /// 默认构造函数
@@ -43,41 +44,62 @@ namespace DapperInfrastructure.DapperWrapper.Factory
             }
 
             // Store factory and connection string
-            connStr = DesCode.DecryptDes(ConfigurationManager.ConnectionStrings[connName].ConnectionString);
+            connStr = DesCode.DecryptDes(ConfigurationManager.ConnectionStrings[connName].ConnectionString); 
             providerTypeName = providerKey;
+            _factory = DbProviderFactories.GetFactory(providerTypeName); 
             Init();
 
         }
 
+
+        public SqlConnectionFactory(DbConnection db)
+        {
+            dbConnection = db;
+            connStr = db.ConnectionString;
+            _factory = DbProviderFactories.GetFactory(db);
+            providerTypeName = _factory.GetType().Name;
+            Init();
+        }
+
+
         public SqlConnectionFactory(
-            string connectionString, 
+            string connectionString,
             string providerName)
         {
             connStr = connectionString;
-            providerTypeName = providerName; 
+            providerTypeName = providerName;
             _factory = DbProviderFactories.GetFactory(providerTypeName);
             Init();
         }
-         
+
         public SqlConnectionFactory(
-            string connectionString, 
+            string connectionString,
             DbProviderFactory provider)
-        { 
+        {
             connStr = connectionString;
             _factory = provider;
             providerTypeName = _factory.GetType().Name;
             Init();
         }
-         
+
+
         public IDbConnection GetConnection()
         {
-            var sharedConnection =  _factory.CreateConnection(); 
-            sharedConnection.ConnectionString = connStr;
-            return sharedConnection; 
+            if (dbConnection != null)
+            {
+                return dbConnection;
+            }
+            else
+            {
+
+                var sharedConnection = _factory.CreateConnection();
+                sharedConnection.ConnectionString = connStr;
+                return sharedConnection;
+            }
         }
 
-         
-         
+
+
         /// <summary>
         /// 获取数据库连接类型
         /// </summary>
@@ -89,9 +111,9 @@ namespace DapperInfrastructure.DapperWrapper.Factory
 
         private void Init()
         {
-            string dbtype = (_factory?.GetType() ?? GetConnection().GetType()).Name;
+            string dbtype = ((_factory != null ? _factory.GetType() : null) ?? GetConnection().GetType()).Name;
 
-            DbType dbType = DbType.SqlServer; 
+            DbType  dbType = DbType.SqlServer;
             if (dbtype.StartsWith("MySql")) dbType = DbType.MySql;
             else if (dbtype.StartsWith("SqlCe")) dbType = DbType.SqlServerCe;
             else if (dbtype.StartsWith("Npgsql")) dbType = DbType.PostgreSql;
@@ -106,7 +128,7 @@ namespace DapperInfrastructure.DapperWrapper.Factory
             else if (providerTypeName.IndexOf("SQLite", StringComparison.InvariantCultureIgnoreCase) >= 0) dbType = DbType.SqLite;
             DbType = dbType;
 
-        } 
+        }
 
         #endregion
 

@@ -5,6 +5,10 @@ using System.Text;
 
 namespace DapperInfrastructure.DapperWrapper.Encrypt
 {
+
+    /// <summary>
+    /// 数据库链接加密
+    /// </summary>
     public static class DesCode
     {
         // KEY 8位

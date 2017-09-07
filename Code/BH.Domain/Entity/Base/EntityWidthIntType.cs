@@ -1,4 +1,5 @@
 ﻿using DapperInfrastructure.Extensions.Domain;
+using DapperInfrastructure.Extensions.Domain.Base;
 
 namespace BH.Domain.Entity.Base
 {
@@ -11,7 +12,7 @@ namespace BH.Domain.Entity.Base
         /// 主键ID
         /// </summary>
         [Dapper.Contrib.Extensions.Key]
-        public override int ID { get; set; }
+        public override int Id { get; set; }
 
     }
 }

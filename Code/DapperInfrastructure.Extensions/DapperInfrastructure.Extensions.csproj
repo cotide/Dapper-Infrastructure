@@ -54,12 +54,15 @@
     <Compile Include="Attr\Desc\EntityDescAttribute.cs" />
     <Compile Include="Attr\Desc\EntityPropertyDescAttribute.cs" />
     <Compile Include="Collections\PagerList.cs" />
+    <Compile Include="Domain\Base\EntityByType.cs" />
     <Compile Include="Domain\EntityWidthGuidType.cs" />
     <Compile Include="Domain\EntityWidthIntType.cs" />
     <Compile Include="Domain\Base\EntityWidthStringType.cs" />
-    <Compile Include="Domain\EntityByType.cs" />
     <Compile Include="Domain\Base\IEntityByType.cs" />
+    <Compile Include="Domain\EntityWidthLongType.cs" />
+    <Compile Include="Extensions\GuidExtensions.cs" />
     <Compile Include="Helper\GuidExtensions.cs" />
+    <Compile Include="Mapper\TableMaper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

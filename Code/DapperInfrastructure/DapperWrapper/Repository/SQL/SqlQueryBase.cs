@@ -3,25 +3,44 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Dapper;
-using DapperInfrastructure.DapperWrapper.Enum;
 using DapperInfrastructure.DapperWrapper.Pagination;
 using DapperInfrastructure.DapperWrapper.SQLHelper;
 using DapperInfrastructure.DapperWrapper.UnitOfWork;
+using DapperInfrastructure.Extensions.Collections;
+using DbType = DapperInfrastructure.DapperWrapper.Enum.DbType;
 
-namespace DapperInfrastructure.DapperWrapper.Repository
+namespace DapperInfrastructure.DapperWrapper.Repository.SQL
 {
     /// <summary>
     ///  CRUD 仓储 实例
     /// </summary>
-    public class SqlQueryBase
+    public  class SqlQueryBase
     {
-        protected readonly DapperUnitOfWork UnitOfWork;
+        /// <summary>
+        /// 业务对象实例
+        /// </summary>
+        public readonly DapperUnitOfWork UnitOfWork;
          
+        /// <summary>
+        /// 超时时间
+        /// </summary>
         protected int OneTimeCommandTimeout { get; set; } 
+
+        /// <summary>
+        /// 是否使用名称参数
+        /// </summary>
         protected bool EnableNamedParams { get; set; }
+
+        /// <summary>
+        /// 是否进行时间格式化
+        /// </summary>
         protected bool ForceDateTimesToUtc { get; set; }
 
 
+        /// <summary>
+        /// 构造函数
+        /// </summary>
+        /// <param name="unitOfWork"></param>
         public SqlQueryBase(DapperUnitOfWork unitOfWork)
         {
             UnitOfWork = unitOfWork;
@@ -29,63 +48,91 @@ namespace DapperInfrastructure.DapperWrapper.Repository
 
         #region 获取列表数据 
 
-        /// <summary>
-        /// 获取实体列表数据
-        /// </summary>
-        /// <param name="sql">SQL 对象</param>
-        /// <returns></returns>
-        public IEnumerable<TDto> GetList<TDto>(Sql sql)
-        {
-            UnitOfWork.GetOpenConnection();
-            var results = UnitOfWork.DbConnection.Query<TDto>(
-                sql.SQL,
-                GetParams(sql.Arguments));
-            return results;
-        }
+
 
         /// <summary>
         /// 获取实体列表数据
         /// </summary>
+        /// <param name="sql">SQL 对象</param> 
+        /// <returns></returns>
+        public IList<TDto> GetList<TDto>(
+            Sql sql)
+        { 
+            UnitOfWork.GetOpenConnection();
+            var results = UnitOfWork.DbConnection.Query<TDto>(
+                sql.SQL,
+                GetParams(sql.Arguments),
+                UnitOfWork.DbTransaction);
+            return results.ToList();
+        }
+ 
+
+        /// <summary>
+        /// 获取实体列表数据 
+        /// </summary>
         /// <param name="sql"></param>
         /// <param name="param"></param>
         /// <returns></returns>
-        public IEnumerable<TDto> GetList<TDto>(string sql, params object[] param)
+        public IList<TDto> GetList<TDto>(
+            string sql,
+            params object[] param)
         {
-            return GetList<TDto>(new Sql(sql, param));
+            return GetList<TDto>(new Sql(sql,param));  
         }
+
+
 
         #endregion
 
         #region 获取单条数据
 
+
         /// <summary>
         /// 获取实体数据
         /// </summary>
-        /// <param name="sql">SQL 对象</param>
+        /// <param name="sql">SQL 对象</param> 
         /// <returns></returns>
-        public TDto Get<TDto>(Sql sql)
+        public TDto Get<TDto>(
+            Sql sql)
         {
             UnitOfWork.GetOpenConnection();
             var results = UnitOfWork.DbConnection.QueryFirstOrDefault<TDto>(
                 sql.SQL,
-                GetParams(sql.Arguments));
+                GetParams(sql.Arguments),
+                UnitOfWork.DbTransaction);
             return results;
         }
+ 
 
-
+        /// <summary>
+        /// 获取实体数据
+        /// </summary>
+        /// <param name="sql">SQL语句</param>
+        /// <param name="param">参数</param>
+        /// <returns></returns>
+        public TDto Get<TDto>(string sql, params object[] param)
+        {  
+            return Get<TDto>(new Sql(sql,param));
+        }
+ 
 
         #endregion
 
+        /// <summary>
+        /// 统计总数
+        /// </summary>
+        /// <param name="sql">SQL 对象</param> 
+        /// <returns></returns>
         public int Count(Sql sql)
         {
             UnitOfWork.GetOpenConnection();
             var results = UnitOfWork.DbConnection.ExecuteScalar<int>(
                 sql.SQL,
-                GetParams(sql.Arguments));
+                GetParams(sql.Arguments),
+                UnitOfWork.DbTransaction);
             return results;
         }
-
-
+         
 
         #region 分页获取数据
 
@@ -108,6 +155,16 @@ namespace DapperInfrastructure.DapperWrapper.Repository
 
         #region Helper
 
+        /// <summary>
+        /// 分页处理
+        /// </summary>
+        /// <param name="pageIndex">开始页码</param>
+        /// <param name="itemsPerPage">总页数</param>
+        /// <param name="sql">SQL脚本</param>
+        /// <param name="sqlCountField">查询字段</param>
+        /// <param name="param">参数</param>
+        /// <typeparam name="Dto">返回结果集</typeparam>
+        /// <returns></returns>
         protected Page<Dto> Page<Dto>(
             int pageIndex, 
             int itemsPerPage, 
@@ -152,9 +209,7 @@ namespace DapperInfrastructure.DapperWrapper.Repository
             return result;
         }
 
-
-
-     
+         
         private void BuildPageQueries<T>(
             long skip,
             long take,
@@ -275,6 +330,7 @@ namespace DapperInfrastructure.DapperWrapper.Repository
         private DynamicParameters GetParams(params object[] argsList)
         {
             var parm = new DynamicParameters();
+            if (argsList == null) return parm;
             for (var i = 0; i < argsList.Length; i++)
             {
                 parm.Add("arg" + i, argsList[i]);

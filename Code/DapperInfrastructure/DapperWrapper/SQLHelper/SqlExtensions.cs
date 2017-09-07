@@ -9,7 +9,8 @@ namespace DapperInfrastructure.DapperWrapper.SQLHelper
     /// SQL Class 扩展
     /// </summary>
     public static class SqlExtensions
-    { 
+    {  
+
         public static Sql WhereIf(this Sql source, bool ifTrue, Func<Sql, string> sql, Func<Sql, object[]> args)
         {
             if (ifTrue)
@@ -74,7 +75,7 @@ namespace DapperInfrastructure.DapperWrapper.SQLHelper
         //    return source.Where("find_in_set(" + column + ",@0)", String.Join(",", args));
         //}
 
-        public static Sql WhereIfIn(this Sql source, string column, object[] args)
+        public static Sql WhereIfIn(this Sql source, string column, params object[] args)
         {
             if (!args.HasElements())
                 return source;
@@ -121,7 +122,7 @@ namespace DapperInfrastructure.DapperWrapper.SQLHelper
         /// <returns></returns>
         private static string SafeTrim(this string val)
         {
-            val = val?.Trim();
+            val = !string.IsNullOrEmpty(val) ? val.Trim(): val;
 
             return val;
         }

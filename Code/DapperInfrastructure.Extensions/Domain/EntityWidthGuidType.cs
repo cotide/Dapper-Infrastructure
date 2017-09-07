@@ -1,4 +1,5 @@
 ﻿using System;
+using DapperInfrastructure.Extensions.Domain.Base;
 
 namespace DapperInfrastructure.Extensions.Domain
 {
@@ -12,11 +13,11 @@ namespace DapperInfrastructure.Extensions.Domain
         /// </summary>
         protected EntityWidthGuidType()
         {
-            ID = Guid.NewGuid();
+            Id = Guid.NewGuid();
         }
 
         [Dapper.Contrib.Extensions.ExplicitKey]
-        public override Guid ID { get; set; }
+        public override Guid Id { get; set; }
 
     }
 }

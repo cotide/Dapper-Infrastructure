@@ -64,6 +64,41 @@ using (var db = NewDB)
 
 ```
 
+
+### 新增 - 事务 (多数据库实例切换)
+
+``` c#
+ 
+ using (var db = NewDB)
+ {
+    // 开始事务
+    db.BeginTransaction();
+
+    var repository = db.GetRepository<ApplicationMtr>();
+
+    repository.Create(new ApplicationMtr()
+    {
+        Name = "Game"
+    });
+    // 切换数据库实例
+    db.ChangeDatabase(DBName.DB1.ToString()); 
+    repository.Create(new ApplicationMtr()
+    {
+        Name = "Work"
+    });
+    // 切换数据库实例
+    db.ChangeDatabase(DBName.DB2.ToString()); 
+    repository.Create(new ApplicationMtr()
+    {
+        Name = "Book"
+    }); 
+    // 事务提交
+    db.Commit();
+ }
+
+```
+
+
 ### 查询
 
 ``` c#
@@ -83,9 +118,36 @@ using (var db = NewDB)
 		); 
 	Console.WriteLine(result.Count());
 	Assert.IsTrue(result.Count() > 0); 
+
+    // 方式3
+    result = db.GetSqlQuery.GetList<ApplicationMtr>(
+        Sql.Builder.SelectAll().From<ApplicationMtr>()
+        .Where(" Name = @0 ", "Game"));
+    Console.WriteLine(result.Count());
+    Assert.IsTrue(result.Count() > 0);
 } 
 
 ```
+
+### 查询
+
+``` c#
+ 
+using (var db = NewDB)
+{   
+    var sql = new Sql("SELECT * FROM CategoryApplicationMTR ");
+    sql.Where(" Name = @0", "A1");
+    sql.Where(" Name  = @0 ", "A2");
+    sql.Where(" Name  = @0 ", "A3");
+    sql.WhereIfIn(" Name ", new[] { "A4", "A5", "A6" });
+    sql.OrderBy(" Name desc ");
+    var repository = NewDB.GetRepository<CategoryApplicationMtr>();
+    var result = repository.GetList<CategoryApplicationMtr>(sql);
+    Assert.IsTrue(!result.Any());
+} 
+
+```
+ 
 
 ### 分页查询
 
@@ -96,6 +158,7 @@ int pageSize = 10;
 
 using (var db = NewDB)
 { 
+    // 方式1
 	var sql = Sql.Builder.Append(" select a.Id," +
 									" a.`Name` as ApplicationMtr_Name, " +
 									"a.CategoryId as ApplicationMtr_CategoryId," +
@@ -113,6 +176,24 @@ using (var db = NewDB)
 
 	Console.WriteLine(result2.TotalCount);
 	Assert.IsTrue(result2.TotalCount > 0); 
+
+    // 方式2 
+    sql = Sql.Builder.Select("a.id,a.`Name` as ApplicationMtr_Name," +
+                             "a.CategoryId as ApplicationMtr_CategoryId," +
+                             "a.CreateTime as ApplicationMtr_CreateTime," +
+                             "c.`Name` as CategoryApplicationMtr_Name ")
+                             .From<ApplicationMtr>("a")
+                             .LeftJoin<CategoryApplicationMtr>("c").On("a.CategoryId = c.Id")
+                             .Where(" a.Name = @0 ", "Game");
+
+    result2 = db.GetSqlQuery.PageList<MyDtoClass>(
+        pageIndex,
+        pageSize,
+        sql);
+ 
+    Console.WriteLine(result2.TotalCount);
+    Assert.IsTrue(result2.TotalCount > 0); 
+
 }
 
 ```
@@ -146,6 +227,22 @@ using (var db = NewDB)
      
     Console.WriteLine(result2.TotalCount);
     Assert.IsTrue(result2.TotalCount > 0);
+}
+
+```
+
+
+
+### SQL Execute
+
+
+``` c# 
+
+using (var db = NewDB)
+{
+    var sql = Sql.Builder.Append(
+        string.Format("DELETE FROM {0} WHERE Id = @0", db.GetTableName<ApplicationMtr>()), 1);
+    db.GetSqlRun.Execute(sql);
 }
 
 ```

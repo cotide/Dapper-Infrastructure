@@ -146,8 +146,9 @@ namespace DapperInfrastructure.Tests.DB
         }
 
 
-
-
+        /// <summary>
+        /// 查询列表
+        /// </summary>
         [TestMethod]
         public void GetListTest()
         {
@@ -281,7 +282,9 @@ namespace DapperInfrastructure.Tests.DB
         }
 
 
-
+        /// <summary>
+        /// 执行删除SQL
+        /// </summary>
         [TestMethod]
         public void DeleteTest()
         {
@@ -294,6 +297,95 @@ namespace DapperInfrastructure.Tests.DB
         }
 
 
+
+        [TestMethod]
+        public void GetProc()
+        {
+            /*
+               USE [CommonDB]
+               GO
+               CREATE proc[dbo].[TestProc1]
+               AS
+               BEGIN
+                    SELECT   'Test' AS RESULT
+               END
+            */
+            using (var db = NewDB)
+            {
+
+                var procSql = new ProcSql("TestProc1");
+                var result = db.GetSqlRun.ExecuteProcObj<string>(procSql);
+                Console.WriteLine(string.Format("Result = {0}", result));
+            }
+             
+            /*
+                USE [CommonDB]
+                GO 
+                CREATE proc[dbo].[TestProc]
+                (
+                     @Value nvarchar(255),
+                     @OutValue nvarchar(255)   output
+                )
+                AS
+                BEGIN
+                    SET @OutValue = 'Hello World!'
+                    SELECT @Value  AS RESULT
+                END
+             */
+            using (var db = NewDB)
+            {
+
+                var procSql = new ProcSql("TestProc");
+                procSql.AddParm("Value", "Hello Value");
+                procSql.AddParm("OutValue", "Hello OutValue", true);
+                var result = db.GetSqlRun.ExecuteProcObj<string>(procSql);
+                Console.WriteLine(string.Format("Result = {0}", result));
+                Console.WriteLine(String.Format("OutValue = {0}", procSql.GetOutValue<string>("OutValue")));
+            }
+             
+            /*
+                USE [CommonDB]
+                USE [CommonDB]
+                GO
+                // 测试表1
+                CREATE TABLE [dbo].[Test](
+	                [Name] [nchar](10) NULL
+                ) ON [PRIMARY] 
+                GO
+                // 测试表2
+                CREATE TABLE [dbo].[Test1](
+	                [Name] [nchar](10) NULL,
+	                [Age] [int] NULL
+                ) ON [PRIMARY]   
+                GO 
+                // 测试存储过程
+                CREATE proc  [dbo].[TestProc2]
+                (
+                    @Value    nvarchar(255) 
+                   ,@OutValue   nvarchar(255)   output
+                )
+                AS
+                BEGIN 
+                  SET @OutValue =  (SELECT top 1 name FROM CommonDB.dbo.Test)
+                  SELECT * FROM CommonDB.dbo.Test1
+                END
+             */
+            using (var db = NewDB)
+            {
+
+                var procSql = new ProcSql("TestProc2");
+                procSql.AddParm("Value", "Hello Value");
+                procSql.AddParm("OutValue", "Hello OutValue", true);
+                var result = db.GetSqlRun.ExecuteProcList<string>(procSql);
+                Console.WriteLine(string.Format("Result = {0}", result));
+                foreach (var item in result)
+                {
+                    Console.WriteLine(item);
+                }
+                Console.WriteLine(String.Format("OutValue = {0}", procSql.GetOutValue<string>("OutValue")));
+            }
+             
+        }
 
 
         #region Helper

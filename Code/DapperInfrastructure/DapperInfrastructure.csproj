@@ -69,6 +69,7 @@
     <Compile Include="DapperWrapper\Repository\IRepository.cs" />
     <Compile Include="DapperWrapper\Repository\SQL\SqlExecuteBase.cs" />
     <Compile Include="DapperWrapper\Repository\SQL\SqlQueryBase.cs" />
+    <Compile Include="DapperWrapper\SQLHelper\ProcSql.cs" />
     <Compile Include="DapperWrapper\SQLHelper\Sql.cs" />
     <Compile Include="DapperWrapper\SQLHelper\SqlExtensions.cs" />
     <Compile Include="DapperWrapper\UnitOfWork\DapperUnitOfWork.cs" />

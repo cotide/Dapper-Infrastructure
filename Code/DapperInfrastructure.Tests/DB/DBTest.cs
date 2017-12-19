@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BH.Domain.Entity.Category;
+using DapperInfrastructure.DapperWrapper;
 using DapperInfrastructure.DapperWrapper.SQLHelper;
 using DapperInfrastructure.Tests.Enum;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -17,7 +18,7 @@ namespace DapperInfrastructure.Tests.DB
         [TestInitialize]
         public void Init()
         {
-
+            DbFactory.Init();
         }
 
 

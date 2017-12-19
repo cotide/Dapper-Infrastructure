@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DapperWrapper\DbFactory.cs" />
     <Compile Include="DapperWrapper\Encrypt\DESCode.cs" />
     <Compile Include="DapperWrapper\Enum\DBType.cs" />
     <Compile Include="DapperWrapper\Factory\IFactory\IConnectionFactory.cs" />

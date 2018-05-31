@@ -9,8 +9,7 @@ using DapperInfrastructure.DapperWrapper.Repository.SQL;
 using DapperInfrastructure.DapperWrapper.UnitOfWork;
 using DapperInfrastructure.Extensions.Domain;
 using DapperInfrastructure.Extensions.Domain.Base;
-using DapperInfrastructure.Extensions.Mapper;
-using RD.Infrastructure.DapperWrapper.Enum;
+using DapperInfrastructure.Extensions.Mapper; 
 
 namespace DapperInfrastructure
 {

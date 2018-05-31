@@ -61,7 +61,6 @@
     <Compile Include="Domain\Base\EntityWidthStringType.cs" />
     <Compile Include="Domain\Base\IEntityByType.cs" />
     <Compile Include="Domain\EntityWidthLongType.cs" />
-    <Compile Include="Enum\DbName.cs" />
     <Compile Include="Extensions\GuidExtensions.cs" />
     <Compile Include="Helper\GuidExtensions.cs" />
     <Compile Include="Mapper\ColumnAttributeTypeMapper.cs" />

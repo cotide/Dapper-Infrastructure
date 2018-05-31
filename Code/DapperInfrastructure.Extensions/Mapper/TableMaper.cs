@@ -4,6 +4,7 @@ using System.Linq;
 using Dapper.Contrib.Extensions;
 using DapperInfrastructure.Extensions.Domain;
 using DapperInfrastructure.Extensions.Domain.Base;
+using TableAttribute = DapperInfrastructure.Extensions.Attr.TableAttribute;
 
 namespace DapperInfrastructure.Extensions.Mapper
 {
@@ -44,26 +45,34 @@ namespace DapperInfrastructure.Extensions.Mapper
         /// <returns></returns>
         private static string TableNameMapper(Type type)
         {
+             
             if (TableMapperDictionary != null && TableMapperDictionary.ContainsKey(type.FullName))
             {
                 return TableMapperDictionary[type.FullName];
             }
             else
             { 
-                dynamic tableattr = type.GetCustomAttributes(false).SingleOrDefault(attr => attr.GetType().Name == "TableAttribute");
-                var name = string.Empty;
+
+                var name = type.Name;
+
+                var tableattr = type.GetCustomAttributes(false).OfType<TableAttribute>()
+                    .FirstOrDefault() ;
 
                 if (tableattr != null)
                 {
                     name = tableattr.Name;
                     // 缓存
-                    if (TableMapperDictionary != null) TableMapperDictionary.Add(type.FullName, name);
+                    if (TableMapperDictionary != null && !TableMapperDictionary.ContainsKey(type.FullName))
+                    {
+                        TableMapperDictionary.Add(type.FullName, name);
+                    }
                 }
                 else
                 {
                     throw new ArgumentNullException(@"TableAttribute is null");
-                } 
+                }
                 return name;
+
             }
 
         } 

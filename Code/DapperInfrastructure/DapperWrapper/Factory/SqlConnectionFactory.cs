@@ -44,7 +44,8 @@ namespace DapperInfrastructure.DapperWrapper.Factory
             }
 
             // Store factory and connection string
-            connStr = DesCode.DecryptDes(ConfigurationManager.ConnectionStrings[connName].ConnectionString); 
+            //connStr = DesCode.DecryptDes(ConfigurationManager.ConnectionStrings[connName].ConnectionString); 
+            connStr = ConfigurationManager.ConnectionStrings[connName].ConnectionString;
             providerTypeName = providerKey;
             _factory = DbProviderFactories.GetFactory(providerTypeName); 
             Init();

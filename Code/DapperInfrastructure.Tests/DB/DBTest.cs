@@ -3,6 +3,7 @@ using System.Linq;
 using BH.Domain.Entity.Category;
 using DapperInfrastructure.DapperWrapper;
 using DapperInfrastructure.DapperWrapper.SQLHelper;
+using DapperInfrastructure.Extensions; 
 using DapperInfrastructure.Tests.Enum;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -17,8 +18,8 @@ namespace DapperInfrastructure.Tests.DB
          
         [TestInitialize]
         public void Init()
-        {
-            DbFactory.Init();
+        {  
+            DbFactory.Init<ApplicationMtr>();
         }
 
 
@@ -373,7 +374,7 @@ namespace DapperInfrastructure.Tests.DB
              */
             using (var db = NewDB)
             {
-
+                
                 var procSql = new ProcSql("TestProc2");
                 procSql.AddParm("Value", "Hello Value");
                 procSql.AddParm("OutValue", "Hello OutValue", true);

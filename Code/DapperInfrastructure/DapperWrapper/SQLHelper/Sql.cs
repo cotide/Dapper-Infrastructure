@@ -230,6 +230,21 @@ namespace DapperInfrastructure.DapperWrapper.SQLHelper
             return Append(new Sql("SELECT " + String.Join(", ", (from x in columns select x.ToString()).ToArray())));
         }
 
+
+
+        public Sql SelectTop(int top, params object[] columns)
+        {
+            if (columns.Any())
+            {
+                return Append(new Sql("SELECT top " + top + " " + String.Join(", ", (from x in columns select x.ToString()).ToArray())));
+            }
+            else
+            {
+                return Append(new Sql("SELECT top " + top + " * "));
+            }
+
+        }
+
         public Sql SelectAll(params object[] columns)
         {
             return Append(new Sql("SELECT  * " ));
@@ -238,6 +253,14 @@ namespace DapperInfrastructure.DapperWrapper.SQLHelper
         public Sql From(params object[] tables)
         {
             return Append(new Sql("FROM " + String.Join(", ", (from x in tables select x.ToString()).ToArray())));
+        }
+        
+
+
+
+        public Sql FromDB<T>(string dbName, string asName = null) where T : EntityByType
+        {
+            return Append(new Sql("FROM " + dbName + ".dbo." + TableMaper.GetName<T>() + " " + asName));
         }
 
         public Sql From<T>(string asName = null) where T : EntityByType
@@ -276,6 +299,13 @@ namespace DapperInfrastructure.DapperWrapper.SQLHelper
         {
             return Join("INNER JOIN ", TableMaper.GetName<T>() + " " + asName);
         }
+
+        public SqlJoinClause InnerJoinDB<T>(string dbName,string asName = null) where T : EntityByType
+        { 
+            return Join("INNER JOIN " + dbName + ".dbo.", TableMaper.GetName<T>() + " " + asName);
+        }
+
+
 
         public SqlJoinClause LeftJoin<T>(string asName = null) where T : EntityByType
         {

@@ -4,11 +4,13 @@ using System.Data.Common;
 using DapperInfrastructure.DapperWrapper.Factory;
 using DapperInfrastructure.DapperWrapper.Factory.IFactory;
 using DapperInfrastructure.DapperWrapper.Repository;
+using DapperInfrastructure.DapperWrapper.Repository.Inter;
 using DapperInfrastructure.DapperWrapper.Repository.SQL;
 using DapperInfrastructure.DapperWrapper.UnitOfWork;
 using DapperInfrastructure.Extensions.Domain;
 using DapperInfrastructure.Extensions.Domain.Base;
-using DapperInfrastructure.Extensions.Mapper; 
+using DapperInfrastructure.Extensions.Mapper;
+using RD.Infrastructure.DapperWrapper.Enum;
 
 namespace DapperInfrastructure
 {
@@ -30,13 +32,13 @@ namespace DapperInfrastructure
         /// 初始化数据库
         /// </summary>
         public DB()
-            : this("Default")
+            : this("default")
         {
           
         }
          
  
-
+ 
 
         /// <summary>
         /// 创建数据库
@@ -44,17 +46,12 @@ namespace DapperInfrastructure
         /// <param name="connName">数据库连接名称</param> 
         /// <returns></returns>
         public static DB New(
-            string connName)
+             string connName =  "default")
         {
             return new DB(connName);
         }
 
 
-
-
-
-
-         
         /// <summary>
         /// 创建数据库
         /// </summary>
@@ -134,6 +131,21 @@ namespace DapperInfrastructure
         public  string GetTableName<T>() where T : EntityByType
         {
             return TableMaper.GetName<T>();
+        }
+
+
+
+        /// <summary>
+        /// 获取仓储对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public T Register<T>() where T : BaseRepository, new()
+        {
+            return new T()
+            {
+                DB = new RepoUnitOfWork(this.GetUnitOfWork() as DapperUnitOfWork)
+            };
         }
 
 

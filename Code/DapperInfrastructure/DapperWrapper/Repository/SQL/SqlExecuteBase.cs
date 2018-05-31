@@ -26,6 +26,34 @@ namespace DapperInfrastructure.DapperWrapper.Repository.SQL
         }
 
 
+
+        /// <summary>
+        /// 执行SQL 并获取结果值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sql">SQL</param>
+        /// <param name="param">参数</param> 
+        /// <returns></returns>
+        public T Query<T>(string sql, object param = null)
+        {
+            return Query<T>(new Sql(sql, param));
+        }
+
+        /// <summary>
+        /// 执行SQL 并获取结果值
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sql">SQL</param>  
+        public T Query<T>(Sql sql)
+        {
+            UnitOfWork.GetOpenConnection();
+            return UnitOfWork.DbConnection.Query<T>(
+                sql.SQL,
+                GetParams(sql.Arguments),
+                UnitOfWork.DbTransaction, true, null, CommandType.Text).FirstOrDefault();
+        }
+
+
         /// <summary>
         /// 执行SQL
         /// </summary>
@@ -108,8 +136,7 @@ namespace DapperInfrastructure.DapperWrapper.Repository.SQL
         /// 执行存储过程 返回单条数据
         /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="procSql"></param>
-        /// <param name="fun"></param>
+        /// <param name="procSql"></param> 
         /// <returns></returns>
         public T ExecuteProcObj<T>(ProcSql procSql)
         {

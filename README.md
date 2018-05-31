@@ -14,13 +14,60 @@
 * CRUD 封装/简化调用方式.
 
 
-## 事例
+## 实体映射
+
+- Table表名映射使用 - DapperInfrastructure.Extensions.Attr.TableAttribute
+- Column字段映射使用 - DapperInfrastructure.Extensions.Attr.ColumnAttribute
+
+``` c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using BH.Domain.Entity.Base;
+using DapperInfrastructure.Extensions.Attr;
+
+namespace BH.Domain.Entity.Category
+{
+
+    /// <summary>
+    /// 应用
+    /// </summary>
+    [Table("ApplicationMTR")]
+    public class ApplicationMtr : EntityWidthStringType 
+    {
+
+        /// <summary>
+        /// 应用名称
+        /// </summary> 
+        [Column("Name")]
+        public string Name { get; set; }
+
+
+        /// <summary>
+        /// 所属分类应用
+        /// </summary>
+        [Column("CategoryId")]
+        public int CategoryId { get; set; }
+
+
+        /// <summary>
+        /// 创建时间
+        /// </summary>
+        [Column("CreateTime")]
+        public DateTime CreateTime { get; set; }
+    }
+}
+```
+
+
+## 使用事例
 
 ### 初始化
 
-``` c#
-
-DbFactory.Init();
+``` c# 
+DbFactory.Init<ApplicationMtr>();
 ```
 
 

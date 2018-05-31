@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using System.Linq; 
+using Dapper;
 using Dapper.Contrib.Extensions;
 using DapperInfrastructure.DapperWrapper.Pagination;
 using DapperInfrastructure.DapperWrapper.SQLHelper;
@@ -15,7 +16,7 @@ namespace DapperInfrastructure.DapperWrapper.Repository
     /// CRUD 仓储 实例
     /// </summary>
     /// <typeparam name="TEntity"></typeparam>
-    public class DapperRepositoryBase<TEntity> : SQL.SqlQueryBase, IRepository<TEntity> where TEntity : EntityByType
+    public class DapperRepositoryBase<TEntity> : SQL.SqlQueryBase where TEntity : EntityByType
     {
 
         public DapperRepositoryBase(DapperUnitOfWork unitOfWork) : base(unitOfWork)
@@ -26,58 +27,6 @@ namespace DapperInfrastructure.DapperWrapper.Repository
         }
 
 
-        #region 持久化
-
-        /// <summary>
-        /// 创建实体
-        /// </summary>
-        /// <param name="entity">实体对象</param>
-        /// <returns></returns>
-        public virtual TEntity Create(TEntity entity)
-        {
-            UnitOfWork.GetOpenConnection();
-            UnitOfWork.DbConnection.Insert(entity, UnitOfWork.DbTransaction);
-            return entity;
-        }
-
-        /// <summary>
-        /// 创建实体 (批量)
-        /// </summary>
-        /// <param name="entity">实体对象</param>
-        /// <returns></returns>
-        public virtual void CreateBatch(TEntity[] entity)
-        {
-            if (entity.Any())
-            {
-                UnitOfWork.GetOpenConnection();
-                UnitOfWork.DbConnection.Insert(entity, UnitOfWork.DbTransaction);
-            }
-        }
-
-        /// <summary>
-        /// 更新实体
-        /// </summary>
-        /// <param name="entity">实体对象</param>
-        /// <returns></returns>
-        public virtual TEntity Update(TEntity entity)
-        {
-            UnitOfWork.GetOpenConnection();
-            UnitOfWork.DbConnection.Update(entity, UnitOfWork.DbTransaction); 
-            return entity;
-        }
-
-        /// <summary>
-        /// 删除实体
-        /// </summary>
-        /// <param name="entity">实体对象</param>
-        /// <returns></returns>
-        public virtual bool Delete(TEntity entity)
-        {
-            UnitOfWork.GetOpenConnection(); 
-            return UnitOfWork.DbConnection.Delete(entity, UnitOfWork.DbTransaction); 
-        }
-
-        #endregion
 
 
 
@@ -141,7 +90,7 @@ namespace DapperInfrastructure.DapperWrapper.Repository
         /// <returns></returns>
         public TEntity Get(string sql, params object[] param)
         {
-            return Get<TEntity>(sql, param);
+            return base.Get<TEntity>(sql, param);
         }
 
         /// <summary>
@@ -151,7 +100,7 @@ namespace DapperInfrastructure.DapperWrapper.Repository
         /// <returns></returns>
         public TEntity Get(Sql sql)
         {
-            return Get<TEntity>(sql);
+            return base.Get<TEntity>(sql);
         }
 
     

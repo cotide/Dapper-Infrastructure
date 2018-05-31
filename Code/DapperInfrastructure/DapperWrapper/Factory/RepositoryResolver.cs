@@ -48,10 +48,10 @@ namespace DapperInfrastructure.DapperWrapper.Factory
             {
                 var foundInterface = Repositories.Single(x => x.Key == type);
                 if (foundInterface.Key != null)
-                    return (DapperRepositoryBase<TEntity>)Activator.CreateInstance(foundInterface.Value, this);
+                    return (DapperRepositoryExBase<TEntity>)Activator.CreateInstance(foundInterface.Value, this);
             }
 
-            return new DapperRepositoryBase<TEntity>(unitOfWork as DapperUnitOfWork);
+            return new DapperRepositoryExBase<TEntity>(unitOfWork as DapperUnitOfWork);
         }
     }
 }

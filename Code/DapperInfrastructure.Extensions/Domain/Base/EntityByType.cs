@@ -1,4 +1,6 @@
-﻿namespace DapperInfrastructure.Extensions.Domain.Base
+﻿using DapperInfrastructure.Extensions.Attr;
+
+namespace DapperInfrastructure.Extensions.Domain.Base
 {
      
     public abstract class EntityByType : IEntityByType
@@ -25,6 +27,7 @@
         /// <summary>
         /// 主键
         /// </summary>  
+        [Column("Id")]
         //[Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)] 
         public virtual T1 Id { get; set; }
 

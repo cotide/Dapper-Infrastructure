@@ -53,6 +53,32 @@ namespace DapperInfrastructure.DapperWrapper.Repository.SQL
                 UnitOfWork.DbTransaction, true, null, CommandType.Text).FirstOrDefault();
         }
 
+        /// <summary>
+        /// 执行SQL 并获取列表结果集
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sql">SQL</param>
+        /// <param name="param">参数</param> 
+        /// <returns></returns>
+        public IList<T> QueryList<T>(string sql, object param = null)
+        {
+            return QueryList<T>(new Sql(sql, param));
+        }
+
+        /// <summary>
+        /// 执行SQL 并获取列表结果集
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="sql">SQL</param>  
+        public IList<T> QueryList<T>(Sql sql)
+        {
+            UnitOfWork.GetOpenConnection();
+            return UnitOfWork.DbConnection.Query<T>(
+                sql.SQL,
+                GetParams(sql.Arguments),
+                UnitOfWork.DbTransaction, true, null, CommandType.Text).ToList();
+        }
+
 
         /// <summary>
         /// 执行SQL
